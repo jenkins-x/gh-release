@@ -1,11 +1,11 @@
 
 readonly ref_endpoint="${GITHUB_API_URL:-https://api.github.com}/repos/%s/git/refs/tags/%s"
 readonly release_endpoint="${GITHUB_API_URL:-https://api.github.com}/repos/%s/releases"
-readonly release_json='{"tag_name": "v%s", "name": "%s", "target_commitish": "%s"}'
+readonly release_json='{"tag_name": "v%s", "name": "%s", "target_commitish": "%s", "prerelease": "%s"}'
 
 release-create() {
-	declare reponame="$1" version="${2#v}" branch="${3:-master}" name="$4"
-	local release="$(printf "$release_json" "$version" "$name" "$branch")"
+	declare reponame="$1" version="${2#v}" branch="${3:-master}" name="$4" prerelease=${5:false}
+	local release="$(printf "$release_json" "$version" "$name" "$branch" "$prerelease")"
 	local release_url="$(printf "$release_endpoint" "$reponame")"
 	echo "Creating release v$version from branch $branch ..."
 	upload_url="$(curl -s -d "$release" "$release_url?access_token=$GITHUB_ACCESS_TOKEN" | upload-url)"
@@ -35,7 +35,7 @@ usage() {
 	echo "Usage: gh-release [-v] subcommand"
 	echo
 	echo "Subcommands:"
-	echo "  create <reponame> <version> [branch] [name]"
+	echo "  create <reponame> <version> [branch] [name] [prerelease]"
 	echo "  destroy <reponame> <version>"
 	echo "  checksums <algorithm>"
 	echo
